@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Glow Notes
 
-## Getting Started
+Small cloud note-taking app built with Next.js, Firebase Auth, Firestore, and a
+lightweight Next.js API route for share link generation.
 
-First, run the development server:
+## Stack
+
+- Next.js App Router
+- Firebase Authentication
+- Firestore
+- Next.js Route Handlers for serverless compute
+- Vercel for hosting
+
+## Local setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create `.env.local` from `.env.example`.
+
+3. Start the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Required env vars
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Manual Firebase steps
 
-## Learn More
+1. Apply the Firestore rules from `ai/firestore_rules.txt` in Firebase Console.
+2. Keep Email/Password and Google providers enabled in Firebase Auth.
+3. If Google popup auth fails, verify the app domain is listed under authorized domains.
 
-To learn more about Next.js, take a look at the following resources:
+## Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Email/password and Google authentication
+- Create, edit, search, and delete notes
+- Tags as comma-separated values
+- Markdown preview
+- Public share links with expiry backed by Firestore rules
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Share flow
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The app calls `POST /api/share-link` to generate the share URL and expiry.
+- The client writes `shared` and `shareExpiresAt` to Firestore.
+- Public read access is enforced by Firestore rules only while the note is shared
+  and not expired.
